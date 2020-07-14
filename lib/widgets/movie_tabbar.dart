@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ketulrastogidemo/services/movie_service.dart';
 import 'package:ketulrastogidemo/services/movie_tabbar_service.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +10,7 @@ class MovieTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final MovieService _movieService = Provider.of<MovieService>(context);
     final MovieTabbarService _movieTabbarService =
         Provider.of<MovieTabbarService>(context);
     return BottomNavigationBar(
@@ -21,6 +23,7 @@ class MovieTabBar extends StatelessWidget {
 
       onTap: (index) {
         _movieTabbarService.onTabClicked(index);
+        _movieService.getMovies(MovieType.values[index]);
       },
       items: <BottomNavigationBarItem>[
         BottomNavigationBarItem(

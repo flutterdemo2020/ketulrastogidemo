@@ -2,51 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:ketulrastogidemo/models/movie_model.dart';
 import 'package:ketulrastogidemo/screens/movie_detail_screen.dart';
 import 'package:ketulrastogidemo/services/movie_service.dart';
+import 'package:ketulrastogidemo/services/movie_tabbar_service.dart';
 import 'package:provider/provider.dart';
 
-class MovieListWidget extends StatelessWidget {
-  final MovieType movieType;
+class MovieListWidget extends StatefulWidget {
+  @override
+  _MovieListWidgetState createState() => _MovieListWidgetState();
+}
 
-  const MovieListWidget({Key key, this.movieType}) : super(key: key);
+class _MovieListWidgetState extends State<MovieListWidget> {
+  MovieService _movieService;
+  MovieTabbarService _movieTabbarService;
+  List<Movie> _movieList;
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final MovieService _movieService = Provider.of<MovieService>(context);
+    MovieService _movieService = Provider.of<MovieService>(context);
+    MovieTabbarService _movieTabbarService =
+        Provider.of<MovieTabbarService>(context);
+    // _movieService.getMovies(MovieType.values[_movieTabbarService.currentIndex]);
     return RefreshIndicator(
       color: Colors.orange,
       onRefresh: () async {
-        await _movieService.getMovies(movieType);
+        await _movieService
+            .getMovies(MovieType.values[_movieTabbarService.currentIndex]);
       },
-      child: FutureBuilder<List<Movie>>(
-          future: _movieService.getMovies(movieType),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data != null) {
-                return ListView.separated(
-                  padding: EdgeInsets.all(16.0),
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (context, index) {
-                    Movie movie = snapshot.data[index];
-                    return MovieListItem(movie: movie);
-                  },
-                  separatorBuilder: (context, index) {
-                    return Divider(
-                      height: 16.0,
-                      // color: Colors.grey,
-                    );
-                  },
+      child: (_movieService.filterMovieList.length != 0)
+          ? ListView.separated(
+              padding: EdgeInsets.all(16.0),
+              itemCount: _movieService.filterMovieList.length,
+              itemBuilder: (context, index) {
+                Movie movie = _movieService.filterMovieList[index];
+                return MovieListItem(movie: movie);
+              },
+              separatorBuilder: (context, index) {
+                return Divider(
+                  height: 16.0,
+                  // color: Colors.grey,
                 );
-              } else {
-                return Center(
-                  child: Text('No Data Available.'),
-                );
-              }
-            } else {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          }),
+              },
+            )
+          : Center(
+              child: Text('No Data Available.'),
+            ),
     );
   }
 }

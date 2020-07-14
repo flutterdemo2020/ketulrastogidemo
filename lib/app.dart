@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
           create: (context) => MovieTabbarService(),
         ),
         ChangeNotifierProvider<MovieService>(
-          create: (context) => MovieService(),
+          create: (context) => MovieService.instance(),
         ),
         ChangeNotifierProvider<ThemeService>(
           create: (context) => ThemeService(),
@@ -29,11 +29,6 @@ class MyApp extends StatelessWidget {
               brightness: themeService.brightness,
               visualDensity: VisualDensity.adaptivePlatformDensity,
             ),
-            // darkTheme: ThemeData(
-            //   primarySwatch: Colors.orange,
-            //   brightness: Brightness.dark,
-            //   visualDensity: VisualDensity.adaptivePlatformDensity,
-            // ),
             themeMode: ThemeMode.dark,
             home: HomeScreen(),
           );

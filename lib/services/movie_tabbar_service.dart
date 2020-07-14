@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:ketulrastogidemo/services/movie_service.dart';
 
 class MovieTabbarService extends ChangeNotifier {
   int _currentIndex = 0;

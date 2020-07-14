@@ -10,18 +10,13 @@ import 'package:provider/provider.dart';
 class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final MovieTabbarService _movieTabbarService =
-        Provider.of<MovieTabbarService>(context);
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
           title: MovieListAppBarTitle(),
         ),
         backgroundColor: Theme.of(context).primaryColor,
-        body: MovieListWidget(
-          movieType: MovieType.values[_movieTabbarService.currentIndex],
-        ),
+        body: MovieListWidget(),
         bottomNavigationBar: MovieTabBar(),
         floatingActionButton: MovieListFAB(),
       ),
@@ -62,15 +57,25 @@ class MovieListFAB extends StatelessWidget {
   }
 }
 
-class MovieListAppBarTitle extends StatelessWidget {
-  const MovieListAppBarTitle({
-    Key key,
-  }) : super(key: key);
+class MovieListAppBarTitle extends StatefulWidget {
+  @override
+  _MovieListAppBarTitleState createState() => _MovieListAppBarTitleState();
+}
+
+class _MovieListAppBarTitleState extends State<MovieListAppBarTitle> {
+  TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _textEditingController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final MovieTabbarService _movieTabbarService =
         Provider.of<MovieTabbarService>(context);
+    final MovieService _movieService = Provider.of<MovieService>(context);
     return _movieTabbarService.searchClicked
         ? Container(
             width: double.infinity,
@@ -78,13 +83,8 @@ class MovieListAppBarTitle extends StatelessWidget {
               children: <Widget>[
                 Container(
                   width: MediaQuery.of(context).size.width - 100,
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.white,
-                  //   ),
-                  //   borderRadius: BorderRadius.circular(8.0),
-                  // ),
                   child: TextField(
+                    controller: _textEditingController,
                     decoration: InputDecoration(
                       isDense: true,
                       border: InputBorder.none,
@@ -102,9 +102,15 @@ class MovieListAppBarTitle extends StatelessWidget {
                         ),
                       ),
                       suffixIcon: _movieTabbarService.searchClicked
-                          ? Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Icon(Icons.cancel),
+                          ? InkWell(
+                              onTap: () {
+                                _textEditingController.text = '';
+                                _movieService.filterMovies('');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(Icons.cancel),
+                              ),
                             )
                           : Container(),
                       contentPadding:
@@ -112,11 +118,16 @@ class MovieListAppBarTitle extends StatelessWidget {
                       prefixIconConstraints: BoxConstraints(maxHeight: 32.0),
                       suffixIconConstraints: BoxConstraints(maxHeight: 32.0),
                     ),
+                    onChanged: (value) {
+                      _movieService.filterMovies(value);
+                    },
                   ),
                 ),
                 InkWell(
                   onTap: () {
                     _movieTabbarService.onCancelClicked();
+                    _textEditingController.text = '';
+                    _movieService.filterMovies('');
                   },
                   child: Container(
                     padding: EdgeInsets.all(8.0),
